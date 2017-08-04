@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>The Game Corner</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <script src="app.js"></script>
+    </head>
+    <body ng-app="gamecorner" ng-controller="MainCtrl">
+        <div>
+            {{test}}
+        </div>
+        <div ng-repeat="game in games | orderBy: '-upvotes'">
+            {{game.title}} - likes: {{game.upvotes}} - favorite: {{game.favorite}}
+        </div>
+        <div>
+            <form ng-submit="addGame()">
+                <input type="text" ng-model="title"></input>
+                <button type="submit">Add Game</button>
+            </form>
+        </div>
+    </body>
+</html>
