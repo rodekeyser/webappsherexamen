@@ -51,20 +51,28 @@ app.factory('games', ['$http', function ($http) {
     };
 
     o.upvote = function(game){
-
-    }
+        return $http.put('/games/' + game._id + '/upvote', null).success(function(data){
+        game.upvotes += 1;
+        });
+    };
 
     o.downvote = function(game){
-
-    }
+        return $http.put('/games/' + game._id + '/downvote', null).success(function(data){
+        game.downvotes += 1;
+        });
+    };
 
     o.setFavorite = function(game){
-
-    }
+        return $http.put('/games/' + game._id + '/favorite', null).success(function(data){
+        game.favorite = true;
+        });
+    };
 
     o.setUnfavorite= function(game){
-        
-    }
+        return $http.put('/games/' + game._id + '/unfavorite', null).success(function(data){
+        game.favorite = false;
+        });
+    };
 
     return o;
 }]);
@@ -87,19 +95,19 @@ app.controller('MainCtrl', [
             $scope.description = '';
         };
         $scope.incrementUpvotes = function (game) {
-            game.upvotes += 1;
+            games.upvote(game);
         };
         $scope.incrementDownvotes = function(game){
-            game.downvotes += 1;
+            games.downvote(game);
         };
         $scope.setFavorite = function(game){
-            game.favorite = true;
+            games.setFavorite(game);
         };
         $scope.setNotFavorite = function(game){
-            game.favorite = false;
+            games.setUnfavorite(game);
         };
         $scope.deleteGame = function(game){
-            games.delete(game);
+            gamess.delete(game);
             $scope.games = games.games;
         };
     }
