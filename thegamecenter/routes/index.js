@@ -22,7 +22,11 @@ router.param('game', function(req, res, next, id){
 });
 
 router.get('/games/:game', function(req, res){
-  res.json(req.game);
+  Game.findById(req.params.game, function(err, game){
+        if (err){ res.send(err); }
+
+        res.json(game);
+    });
 });
 
 router.post('/games', function(req, res, next) {
@@ -51,6 +55,17 @@ router.delete('/games/:game/remove', function(req, res, next){
   });
 });
 
-
+router.put('/games/:game/update', function(req, res, next){
+    var game = req.game;
+      game.title = req.body.title;
+      game.link = req.body.link;
+      game.description = req.body.description;
+    game.save(function(err) {
+      if(err){ return next(err); }
+     res.json(game);
+      return next();
+    
+    });
+});
 
 module.exports = router;

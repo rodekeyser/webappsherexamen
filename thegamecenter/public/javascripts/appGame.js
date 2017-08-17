@@ -36,6 +36,36 @@ app.factory('games', ['$http', function ($http) {
         });
     };
 
+    o.update = function(id, game){
+        console.log(game);
+        return $http.put('/games/' + id + '/update', game).success(function(data){
+            o.games.forEach(function(element) {
+                if(element._id == data._id){
+                    var index = o.games.indexOf(element);
+                    o.games.splice(index);
+                    o.games.push(data);
+                    console.log(o.games);
+                }
+            }, this);
+        });
+    };
+
+    o.upvote = function(game){
+
+    }
+
+    o.downvote = function(game){
+
+    }
+
+    o.setFavorite = function(game){
+
+    }
+
+    o.setUnfavorite= function(game){
+        
+    }
+
     return o;
 }]);
 
@@ -68,9 +98,6 @@ app.controller('MainCtrl', [
         $scope.setNotFavorite = function(game){
             game.favorite = false;
         };
-        $scope.updateGame = function(game){
-            
-        };
         $scope.deleteGame = function(game){
             games.delete(game);
             $scope.games = games.games;
@@ -80,10 +107,22 @@ app.controller('MainCtrl', [
 
 app.controller('GameCtrl',[
     '$scope',
-    '$stateParams',
     'games',
-    function($scope, $stateParams, games){
+    'game',
+    function($scope, games, game){
 
+        $scope.game = game;
+        console.log(game);
+        $scope.updateGame = function(title, link, description){
+            games.update( $scope.game._id ,{
+                title: $scope.title,
+                description: $scope.description,
+                link: $scope.link
+            });
+        };
+        $scope.addPlayer=function(game){
+
+        };
     }
 ]);
 
