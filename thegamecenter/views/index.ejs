@@ -18,7 +18,7 @@
             <ul class="nav nav-tabs">
                 
                     <li><a href="#/home}">Games</a></li>
-                    <li><a>Players</a></li>
+                    <li><a href="#/players}">Players</a></li>
                 
             </ul>
                 <ui-view></ui-view>
@@ -86,10 +86,31 @@
                     <button type="submit" class="btn btn-primary">Update Game</button> 
                     </form>
                     
-                    <button type>Add Player</button>
+                    <select></select>
+                    <button type="submit">Add Player</button>
                 </div>
                 </script>
 
+
+
+
+                <script type="text/ng-template" id="/players.html">
+
+                 <div ng-repeat="player in players">
+                 {{player.userName}} -- {{player.realName}} -- {{player.age}}
+                 </div>
+
+                 <form ng-submit="addPlayer()" style="margin-top:30px;">
+                 <h3>Add a new game</h3>
+                    <input type="text" class="form-control" placeholder="Username" ng-model="userName"></input>
+                    <br>
+                    <input type="text" class="form-control" placeholder="Real name" ng-model="realName"></input>
+                    <br>
+                    <input type="text" class="form-control" placeholder="Age" ng-model="age"></input>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Add Player</button>
+                 </form>
+                </script>
 
 
     </body>

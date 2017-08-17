@@ -21,6 +21,18 @@ router.param('game', function(req, res, next, id){
   });
 });
 
+router.param('player', function(req, res, next, id){
+  var query = Player.findById(id);
+
+  query.exec(function(err, player){
+    if(err){return next(err);}
+    if(!player){return next(new Error('can\'t find player'));
+  }
+  req.player = player;
+  return next();
+  });
+});
+
 router.get('/games/:game', function(req, res){
   Game.findById(req.params.game, function(err, game){
         if (err){ res.send(err); }
@@ -30,7 +42,6 @@ router.get('/games/:game', function(req, res){
 });
 
 router.post('/games', function(req, res, next) {
-console.log('hey');
    var game = new Game(req.body);
    game.save(function(err, game){
      if(err){ return next(err); }
@@ -39,7 +50,6 @@ console.log('hey');
 });
 
 router.get('/games', function(req, res, next){
-  console.log('hey');
   Game.find(function(err, games){
     if(err){return next(err);}
     res.json(games);
@@ -97,6 +107,21 @@ router.put('/games/:game/unfavorite', function(req, res, next){
 
     res.json(game);
     });
+});
+
+router.get('/players', function(req, res, next){
+  Player.find(function(err, players){
+    if(err){return next(err);}
+    res.json(players);
+  });
+});
+
+router.post('/players', function(req, res, next) {
+   var player = new Player(req.body);
+   player.save(function(err, player){
+     if(err){ return next(err); }
+     res.json(player);
+   });
 });
 
 module.exports = router;

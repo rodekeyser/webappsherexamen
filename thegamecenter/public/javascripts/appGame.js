@@ -5,6 +5,10 @@ app.factory('games', ['$http', function ($http) {
         games: []
     };
 
+    var p = {
+        players: []
+    };
+
     o.getAll = function(){
         return $http.get('/games').success(function(data){
             angular.copy(data, o.games);
@@ -74,6 +78,18 @@ app.factory('games', ['$http', function ($http) {
         });
     };
 
+    p.getAllPlayers = function(){
+        return $http.get('/players').success(function(data){
+            angular.copy(data, p.players);
+        });
+    };
+
+    p.createPlayer = function(player){
+        return $http.post('/players', player).success(function(data){
+ 		  p.players.push(data);
+	    });
+    };
+
     return o;
 }]);
 
@@ -120,7 +136,6 @@ app.controller('GameCtrl',[
     function($scope, games, game){
 
         $scope.game = game;
-        console.log(game);
         $scope.updateGame = function(title, link, description){
             games.update( $scope.game._id ,{
                 title: $scope.title,
@@ -130,6 +145,26 @@ app.controller('GameCtrl',[
         };
         $scope.addPlayer=function(game){
 
+        };
+    }
+]);
+
+app.controller('PlayerCtrl', [
+    '$scope',
+    'games',
+    function($scope, games){
+        $scope.players = games.players;
+
+        $scope.addPlayer = function(){
+            if (!$scope.userName || $scope.userName === '') { return; }
+            games.createPlayer({
+                userName: $scope.userName,
+                realName: $scope.realName,
+                age : $scope.age
+            });
+            $scope.userName = '';
+            $scope.realName = '';
+            $scope.age = '';
         };
     }
 ]);
@@ -156,6 +191,18 @@ app.config([
             resolve: {
                 game:['$stateParams', 'games', function($stateParams, games){
                     return games.get($stateParams.id);
+                }]
+            }
+        });
+
+        $stateProvider.state('players', {
+            url: '/players',
+            templateUrl: '/players.html',
+            controller: 'PlayerCtrl',
+            resolve: {
+                postPromise: ['games', function(games){
+                    console.log('hey');
+                    return games.getAllPlayers();
                 }]
             }
         });

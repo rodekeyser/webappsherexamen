@@ -7,7 +7,8 @@ var GameSchema = new mongoose.Schema({
     description: String,
     upvotes: {type: Number, default: 0},
     downvotes: {type: Number, default: 0},
-    favorite: {type: Boolean, default: false }
+    favorite: {type: Boolean, default: false },
+    players: {type: mongoose.Schema.Types.ObjectId, ref: 'Player'}
 });
 
 GameSchema.methods.upvote = function(cb)
