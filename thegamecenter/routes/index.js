@@ -124,4 +124,46 @@ router.post('/players', function(req, res, next) {
    });
 });
 
+router.get('/players/:player', function(req, res){
+  req.player.populate('games', function(err, player){
+    if(err){return next(err);}
+
+    res.json(player);
+  });
+});
+
+router.delete('/players/:player/remove', function(req, res, next){
+  req.player.remove(
+    function(err, player){
+    if(err){return next(err);}
+    res.json(player);
+  });
+});
+
+router.put('/games/:game/players/:player', function(req, res, next){
+  var i = 0;
+  req.game.players.forEach(function(element) {
+    if(element == req.params.player){
+    console.log(element + 'en' + req.params.player);
+    i++;
+  }
+  }, this);
+
+  if(i == 0){
+    console.log('hey');
+  req.game.players.push(req.player);
+    req.player.games.push(req.game);
+    req.game.save(function(err,game){
+      if(err) {return next(err); }
+      console.log(game);
+      req.player.save(function(err,player){
+        if(err){return next(err);}
+        console.log(player);
+      });
+      res.json(game);
+  });
+  }
+
+});
+
 module.exports = router;

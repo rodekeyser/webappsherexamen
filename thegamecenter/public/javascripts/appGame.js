@@ -5,10 +5,6 @@ app.factory('games', ['$http', function ($http) {
         games: []
     };
 
-    var p = {
-        players: []
-    };
-
     o.getAll = function(){
         return $http.get('/games').success(function(data){
             angular.copy(data, o.games);
@@ -78,19 +74,50 @@ app.factory('games', ['$http', function ($http) {
         });
     };
 
-    p.getAllPlayers = function(){
+    o.addPlayer = function(playerId, gameId){
+        return $http.put('/games/' + gameId + '/players/' + playerId, null).success(function(data){
+        });
+    };
+
+    return o;
+}]);
+
+
+app.factory('players', ['$http', function ($http) { 
+    var p = {
+        players: []
+    };
+
+    p.getAll = function(){
         return $http.get('/players').success(function(data){
             angular.copy(data, p.players);
         });
     };
 
-    p.createPlayer = function(player){
+    p.create = function(player){
         return $http.post('/players', player).success(function(data){
  		  p.players.push(data);
 	    });
     };
 
-    return o;
+    p.get = function(id){
+         return $http.get('/players/' + id).then(function(res){
+            return res.data;
+        });
+    };
+
+    p.delete = function(id){
+        return $http.delete('/players/' + id + '/remove').success(function(data){  
+            p.players.forEach(function(element) {
+                if(element._id == data._id){
+                    var index = p.players.indexOf(element);
+                    p.players.splice(index);
+                }
+            }, this);
+        });
+    };
+
+    return p;
 }]);
 
 app.controller('MainCtrl', [
@@ -123,7 +150,7 @@ app.controller('MainCtrl', [
             games.setUnfavorite(game);
         };
         $scope.deleteGame = function(game){
-            gamess.delete(game);
+            games.delete(game);
             $scope.games = games.games;
         };
     }
@@ -133,9 +160,11 @@ app.controller('GameCtrl',[
     '$scope',
     'games',
     'game',
-    function($scope, games, game){
+    'players',
+    function($scope, games, game, players){
 
         $scope.game = game;
+        $scope.players = players.players;
         $scope.updateGame = function(title, link, description){
             games.update( $scope.game._id ,{
                 title: $scope.title,
@@ -143,21 +172,21 @@ app.controller('GameCtrl',[
                 link: $scope.link
             });
         };
-        $scope.addPlayer=function(game){
-
+        $scope.addPlayer=function(){
+            games.addPlayer($scope.selectedPlayer, $scope.game._id);
         };
     }
 ]);
 
 app.controller('PlayerCtrl', [
     '$scope',
-    'games',
-    function($scope, games){
-        $scope.players = games.players;
+    'players',
+    function($scope, players){
+        $scope.players = players.players;
 
         $scope.addPlayer = function(){
             if (!$scope.userName || $scope.userName === '') { return; }
-            games.createPlayer({
+            players.create({
                 userName: $scope.userName,
                 realName: $scope.realName,
                 age : $scope.age
@@ -166,6 +195,21 @@ app.controller('PlayerCtrl', [
             $scope.realName = '';
             $scope.age = '';
         };
+
+        $scope.deletePlayer = function(player){
+            players.delete(player._id);
+            $scope.players = players.players;
+        }
+    }
+]);
+
+app.controller('PlayerDtlCtrl',[
+    '$scope',
+    'players',
+    'player',
+    function($scope, players, player){
+        $scope.player = player;
+        console.log(player);
     }
 ]);
 
@@ -178,7 +222,7 @@ app.config([
             templateUrl: '/home.html',
             controller: 'MainCtrl',
             resolve: {
-                postPromise: ['games', function(games){
+                gamePromise: ['games', function(games){
                     return games.getAll();
                 }]
             }
@@ -191,6 +235,9 @@ app.config([
             resolve: {
                 game:['$stateParams', 'games', function($stateParams, games){
                     return games.get($stateParams.id);
+                }],
+                playerPromise: ['players', function(players){
+                    return players.getAll();
                 }]
             }
         });
@@ -200,9 +247,19 @@ app.config([
             templateUrl: '/players.html',
             controller: 'PlayerCtrl',
             resolve: {
-                postPromise: ['games', function(games){
-                    console.log('hey');
-                    return games.getAllPlayers();
+                playerPromise: ['players', function(players){
+                    return players.getAll();
+                }]
+            }
+        });
+
+        $stateProvider.state('playerDetail', {
+            url: '/players/detail/{id}',
+            templateUrl: '/players/detail.html',
+            controller: 'PlayerDtlCtrl',
+            resolve: {
+                player:['$stateParams', 'players', function($stateParams, players){
+                    return players.get($stateParams.id);
                 }]
             }
         });

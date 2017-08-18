@@ -11,14 +11,15 @@
         <style> .glyphicon-star-empty { cursor:pointer } </style>
         <style> .glyphicon-trash{ cursor:pointer } </style>
         <style> .glyphicon-cog{ cursor:pointer } </style>
+        <style> .glyphicon-info-sign{ cursor:pointer } </style>
     </head>
     <body ng-app="gamecorner">
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
             <ul class="nav nav-tabs">
                 
-                    <li><a href="#/home}">Games</a></li>
-                    <li><a href="#/players}">Players</a></li>
+                    <li><a href="#/home">Games</a></li>
+                    <li><a href="#/players">Players</a></li>
                 
             </ul>
                 <ui-view></ui-view>
@@ -48,7 +49,7 @@
                         </span>
                     </span>
                     {{game.description}}
-                    <a href="#/games/{{game._id}}" class="glyphicon glyphicon-cog" ng-click="editGame(game)"></a>
+                    <a href="#/games/{{game._id}}" class="glyphicon glyphicon-cog"></a>
                     <span class="glyphicon glyphicon-trash" ng-click="deleteGame(game)"></span>
                 </div>
                 <div>
@@ -85,9 +86,13 @@
                     <br>
                     <button type="submit" class="btn btn-primary">Update Game</button> 
                     </form>
-                    
-                    <select></select>
+
+                    <form ng-submit="addPlayer()" style="margin-top:30px;">
+                    <select name="repeatSelect" id="repeatSelect" ng-model="selectedPlayer">
+                        <option ng-repeat="player in players" value="{{player._id}}">{{player.userName}}</option>
+                    </select>
                     <button type="submit">Add Player</button>
+                    </form>
                 </div>
                 </script>
 
@@ -95,13 +100,19 @@
 
 
                 <script type="text/ng-template" id="/players.html">
-
+                <div class="page-header">
+                    <h3>
+                        Playerlist
+                    </h3>
+                </div>
                  <div ng-repeat="player in players">
-                 {{player.userName}} -- {{player.realName}} -- {{player.age}}
+                 {{player.userName}} -- {{player.realName}} -- {{player.age}} 
+                 <a href="#/players/detail/{{player._id}}" class="glyphicon glyphicon-info-sign"></a>
+                 <span class="glyphicon glyphicon-trash" ng-click="deletePlayer(player)"></span>
                  </div>
 
                  <form ng-submit="addPlayer()" style="margin-top:30px;">
-                 <h3>Add a new game</h3>
+                 <h3>Add a player</h3>
                     <input type="text" class="form-control" placeholder="Username" ng-model="userName"></input>
                     <br>
                     <input type="text" class="form-control" placeholder="Real name" ng-model="realName"></input>
@@ -112,6 +123,25 @@
                  </form>
                 </script>
 
+
+                <script type="text/ng-template" id="/players/detail.html">
+                <div class="page-header">
+                    <h3>
+                        Playerdetail
+                    </h3>
+                </div>
+                <div>
+                Username: {{player.userName}}
+                </br>
+                Real name: {{player.realName}}
+                </br>
+                Age: {{player.age}}
+                </br></br>
+                Owned games:
+                <div ng-repeat="game in player.games">
+                 {{game.title}}
+                </div>
+                </script>
 
     </body>
 </html>
