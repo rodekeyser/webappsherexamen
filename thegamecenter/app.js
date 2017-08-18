@@ -7,6 +7,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 require('./models/Games');
 require('./models/Players');
+require('./models/Users');
+require('./config/passport');
+
 mongoose.connect('mongodb://localhost/gamecenter');
 var index = require('./routes/index');
 var users = require('./routes/users');

@@ -120,11 +120,63 @@ app.factory('players', ['$http', function ($http) {
     return p;
 }]);
 
+app.factory('auth', ['$http', '$window', function($http, $window){
+  var auth = {};
+  auth.saveToken = function (token){
+    $window.localStorage['flapper-news-token'] = token;
+  };
+
+  auth.getToken = function (){
+    return $window.localStorage['flapper-news-token'];
+  };
+  auth.isLoggedIn = function(){
+    var token = auth.getToken();
+
+    if(token){
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+      return payload.exp > Date.now() / 1000;
+    } else {
+      return false;
+    }
+  };
+
+  auth.currentUser = function(){
+    if(auth.isLoggedIn()){
+      var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+      return payload.username;
+    }
+  };
+
+  auth.register = function(user){
+      console.log(user);
+    return $http.post('/register', user).success(function(data){
+      auth.saveToken(data.token);
+    });
+  };
+
+  auth.logIn = function(user){
+    return $http.post('/login', user).success(function(data){
+      auth.saveToken(data.token);
+    });
+  };
+
+  auth.logOut = function(){
+    $window.localStorage.removeItem('flapper-news-token');
+  };
+
+  return auth;
+}]);
+
 app.controller('MainCtrl', [
     '$scope',
     'games',
-    function ($scope, games) {
+    'auth',
+    function ($scope, games, auth) {
         $scope.test = 'Hello gamers!';
+        $scope.isLoggedIn = auth.isLoggedIn;
         $scope.games = games.games;
         $scope.addGame = function () {
             if (!$scope.title || $scope.title === '') { return; }
@@ -161,9 +213,11 @@ app.controller('GameCtrl',[
     'games',
     'game',
     'players',
-    function($scope, games, game, players){
+    'auth',
+    function($scope, games, game, players,auth){
 
         $scope.game = game;
+        $scope.isLoggedIn = auth.isLoggedIn;
         $scope.players = players.players;
         $scope.updateGame = function(title, link, description){
             games.update( $scope.game._id ,{
@@ -181,9 +235,10 @@ app.controller('GameCtrl',[
 app.controller('PlayerCtrl', [
     '$scope',
     'players',
-    function($scope, players){
+    'auth',
+    function($scope, players, auth){
         $scope.players = players.players;
-
+        $scope.isLoggedIn = auth.isLoggedIn;
         $scope.addPlayer = function(){
             if (!$scope.userName || $scope.userName === '') { return; }
             players.create({
@@ -207,11 +262,46 @@ app.controller('PlayerDtlCtrl',[
     '$scope',
     'players',
     'player',
-    function($scope, players, player){
+    'auth',
+    function($scope, players, player, auth){
         $scope.player = player;
+        $scope.isLoggedIn = auth.isLoggedIn;
         console.log(player);
     }
 ]);
+
+app.controller('AuthCtrl', [
+  '$scope',
+  '$state',
+  'auth',
+  function($scope, $state, auth){
+    $scope.user = {};
+
+    $scope.register = function(){
+      auth.register($scope.user).error(function(error){
+        $scope.error = error;
+      }).then(function(){
+        $state.go('home');
+      });
+    };
+
+    $scope.logIn = function(){
+      auth.logIn($scope.user).error(function(error){
+        $scope.error = error;
+      }).then(function(){
+        $state.go('home');
+      });
+    };
+  }]);
+
+app.controller('NavCtrl', [
+  '$scope',
+  'auth',
+  function($scope, auth){
+    $scope.isLoggedIn = auth.isLoggedIn;
+    $scope.currentUser = auth.currentUser;
+    $scope.logOut = auth.logOut;
+  }]);
 
 app.config([
     '$stateProvider',
@@ -263,6 +353,28 @@ app.config([
                 }]
             }
         });
+
+        $stateProvider.state('login', {
+      url: '/login',
+      templateUrl: '/login.html',
+      controller: 'AuthCtrl',
+      onEnter: ['$state', 'auth', function($state, auth){
+        if(auth.isLoggedIn()){
+          $state.go('home');
+        }
+      }]
+    });
+
+    $stateProvider.state('register', {
+      url: '/register',
+      templateUrl: '/register.html',
+      controller: 'AuthCtrl',
+      onEnter: ['$state', 'auth', function($state, auth){
+        if(auth.isLoggedIn()){
+          $state.go('home');
+        }
+      }]
+    });
 
         $urlRouterProvider.otherwise('home');
     }
