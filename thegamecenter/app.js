@@ -10,7 +10,7 @@ require('./models/Players');
 require('./models/Users');
 require('./config/passport');
 
-mongoose.connect('mongodb://localhost/gamecenter');
+mongoose.connect(process.env.MONGOLAB_URI||'mongodb://localhost/gamecenter');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var app = express();
