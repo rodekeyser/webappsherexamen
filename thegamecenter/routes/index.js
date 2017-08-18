@@ -45,8 +45,9 @@ router.get('/games/:game', function(req, res){
     });
 });
 
-router.post('/games', function(req, res, next) {
+router.post('/games', auth, function(req, res, next) {
    var game = new Game(req.body);
+   game.author = req.payload.username;
    game.save(function(err, game){
      if(err){ return next(err); }
      res.json(game);
@@ -60,7 +61,7 @@ router.get('/games', function(req, res, next){
   });
 });
 
-router.delete('/games/:game/remove', function(req, res, next){
+router.delete('/games/:game/remove', auth, function(req, res, next){
   req.game.remove(
     function(err, game){
     if(err){return next(err);}
@@ -68,7 +69,7 @@ router.delete('/games/:game/remove', function(req, res, next){
   });
 });
 
-router.put('/games/:game/update', function(req, res, next){
+router.put('/games/:game/update', auth, function(req, res, next){
     var game = req.game;
       game.title = req.body.title;
       game.link = req.body.link;
@@ -81,7 +82,7 @@ router.put('/games/:game/update', function(req, res, next){
     });
 });
 
-router.put('/games/:game/upvote', function(req, res, next){
+router.put('/games/:game/upvote', auth, function(req, res, next){
     req.game.upvote(function(err, game){
     if(err){return next(err);}
 
@@ -89,7 +90,7 @@ router.put('/games/:game/upvote', function(req, res, next){
   });
 });
 
-router.put('/games/:game/downvote', function(req, res, next){
+router.put('/games/:game/downvote', auth, function(req, res, next){
   req.game.downvote(function(err, game){
     if(err){return next(err);}
 
@@ -97,7 +98,7 @@ router.put('/games/:game/downvote', function(req, res, next){
     });
 });
 
-router.put('/games/:game/favorite', function(req, res, next){
+router.put('/games/:game/favorite', auth, function(req, res, next){
   req.game.setFavorite(function(err, game){
     if(err){return next(err);}
 
@@ -105,7 +106,7 @@ router.put('/games/:game/favorite', function(req, res, next){
     });
 });
 
-router.put('/games/:game/unfavorite', function(req, res, next){
+router.put('/games/:game/unfavorite', auth, function(req, res, next){
   req.game.setNotFavorite(function(err, game){
     if(err){return next(err);}
 
@@ -120,8 +121,9 @@ router.get('/players', function(req, res, next){
   });
 });
 
-router.post('/players', function(req, res, next) {
+router.post('/players', auth, function(req, res, next) {
    var player = new Player(req.body);
+   player.author = req.payload.username;
    player.save(function(err, player){
      if(err){ return next(err); }
      res.json(player);
@@ -136,7 +138,7 @@ router.get('/players/:player', function(req, res){
   });
 });
 
-router.delete('/players/:player/remove', function(req, res, next){
+router.delete('/players/:player/remove', auth, function(req, res, next){
   req.player.remove(
     function(err, player){
     if(err){return next(err);}
@@ -144,7 +146,7 @@ router.delete('/players/:player/remove', function(req, res, next){
   });
 });
 
-router.put('/games/:game/players/:player', function(req, res, next){
+router.put('/games/:game/players/:player', auth, function(req, res, next){
   var i = 0;
   req.game.players.forEach(function(element) {
     if(element == req.params.player){

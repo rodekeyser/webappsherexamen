@@ -1,6 +1,6 @@
 var app = angular.module('gamecorner', ['ui.router']);
 
-app.factory('games', ['$http', function ($http) {
+app.factory('games', ['$http', 'auth', function ($http, auth) {
     var o = {
         games: []
     };
@@ -18,14 +18,18 @@ app.factory('games', ['$http', function ($http) {
     };
 
     o.create = function(game){
-        return $http.post('/games', game).success(function(data){
+        return $http.post('/games', game, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
  		  o.games.push(data);
 	    });
     };
 
     o.delete = function(game){
         console.log('check1');
-        return $http.delete('/games/' + game._id + '/remove').success(function(data){  
+        return $http.delete('/games/' + game._id + '/remove', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){  
             o.games.forEach(function(element) {
                 if(element._id == data._id){
                     var index = o.games.indexOf(element);
@@ -38,7 +42,9 @@ app.factory('games', ['$http', function ($http) {
 
     o.update = function(id, game){
         console.log(game);
-        return $http.put('/games/' + id + '/update', game).success(function(data){
+        return $http.put('/games/' + id + '/update', game,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
             o.games.forEach(function(element) {
                 if(element._id == data._id){
                     var index = o.games.indexOf(element);
@@ -51,31 +57,41 @@ app.factory('games', ['$http', function ($http) {
     };
 
     o.upvote = function(game){
-        return $http.put('/games/' + game._id + '/upvote', null).success(function(data){
+        return $http.put('/games/' + game._id + '/upvote', null,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
         game.upvotes += 1;
         });
     };
 
     o.downvote = function(game){
-        return $http.put('/games/' + game._id + '/downvote', null).success(function(data){
+        return $http.put('/games/' + game._id + '/downvote', null,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
         game.downvotes += 1;
         });
     };
 
     o.setFavorite = function(game){
-        return $http.put('/games/' + game._id + '/favorite', null).success(function(data){
+        return $http.put('/games/' + game._id + '/favorite', null,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
         game.favorite = true;
         });
     };
 
     o.setUnfavorite= function(game){
-        return $http.put('/games/' + game._id + '/unfavorite', null).success(function(data){
+        return $http.put('/games/' + game._id + '/unfavorite', null,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
         game.favorite = false;
         });
     };
 
     o.addPlayer = function(playerId, gameId){
-        return $http.put('/games/' + gameId + '/players/' + playerId, null).success(function(data){
+        return $http.put('/games/' + gameId + '/players/' + playerId, null,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
         });
     };
 
@@ -83,7 +99,7 @@ app.factory('games', ['$http', function ($http) {
 }]);
 
 
-app.factory('players', ['$http', function ($http) { 
+app.factory('players', ['$http', 'auth', function ($http, auth) { 
     var p = {
         players: []
     };
@@ -95,7 +111,9 @@ app.factory('players', ['$http', function ($http) {
     };
 
     p.create = function(player){
-        return $http.post('/players', player).success(function(data){
+        return $http.post('/players', player,{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
  		  p.players.push(data);
 	    });
     };
@@ -107,7 +125,9 @@ app.factory('players', ['$http', function ($http) {
     };
 
     p.delete = function(id){
-        return $http.delete('/players/' + id + '/remove').success(function(data){  
+        return $http.delete('/players/' + id + '/remove',{
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){  
             p.players.forEach(function(element) {
                 if(element._id == data._id){
                     var index = p.players.indexOf(element);
@@ -123,11 +143,11 @@ app.factory('players', ['$http', function ($http) {
 app.factory('auth', ['$http', '$window', function($http, $window){
   var auth = {};
   auth.saveToken = function (token){
-    $window.localStorage['flapper-news-token'] = token;
+    $window.localStorage['gamecorner-token'] = token;
   };
 
   auth.getToken = function (){
-    return $window.localStorage['flapper-news-token'];
+    return $window.localStorage['gamecorner-token'];
   };
   auth.isLoggedIn = function(){
     var token = auth.getToken();
@@ -164,7 +184,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   };
 
   auth.logOut = function(){
-    $window.localStorage.removeItem('flapper-news-token');
+    $window.localStorage.removeItem('gamecorner-token');
   };
 
   return auth;
@@ -204,6 +224,9 @@ app.controller('MainCtrl', [
         $scope.deleteGame = function(game){
             games.delete(game);
             $scope.games = games.games;
+        };
+        $scope.isAuthorized = function(game){
+            return game.author === auth.currentUser();
         };
     }
 ]);
@@ -255,6 +278,10 @@ app.controller('PlayerCtrl', [
             players.delete(player._id);
             $scope.players = players.players;
         }
+
+        $scope.isAuthorized = function(player){
+            return player.author === auth.currentUser();
+        };
     }
 ]);
 

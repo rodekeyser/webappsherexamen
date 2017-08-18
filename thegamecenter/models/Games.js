@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var GameSchema = new mongoose.Schema({
     title: String,
     link: String,
+    author: String,
     description: String,
     upvotes: {type: Number, default: 0},
     downvotes: {type: Number, default: 0},
