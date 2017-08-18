@@ -1,5 +1,6 @@
 var app = angular.module('gamecorner', ['ui.router']);
 
+
 app.factory('games', ['$http', 'auth', function ($http, auth) {
     var o = {
         games: []
