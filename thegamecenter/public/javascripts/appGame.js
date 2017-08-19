@@ -295,7 +295,11 @@ app.controller('PlayerDtlCtrl',[
         $scope.isLoggedIn = auth.isLoggedIn;
         console.log(player);
     }
-]);
+]).directive('gamedetail', function(){
+    return {
+    templateUrl: '/my-game.html'
+  };
+});
 
 app.controller('AuthCtrl', [
   '$scope',

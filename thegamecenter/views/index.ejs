@@ -167,7 +167,7 @@
                 </br></br>
                 Owned games:
                 <div ng-repeat="game in player.games">
-                 {{game.title}}
+                <gamedetail></gamedetail>
                 </div>
                 </div>
                 </script>
@@ -232,6 +232,8 @@
     </form>
   </script>
 
-
+<script type="text/ng-template" id="/my-game.html">
+Name: {{game.title}}
+</script
     </body>
 </html>
