@@ -239,7 +239,6 @@ app.controller('GameCtrl',[
     'players',
     'auth',
     function($scope, games, game, players,auth){
-
         $scope.game = game;
         $scope.isLoggedIn = auth.isLoggedIn;
         $scope.players = players.players;

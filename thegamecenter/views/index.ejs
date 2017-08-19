@@ -94,13 +94,13 @@
                 <div>
                     <form ng-submit="updateGame(title, link, description)" style="margin-top:30px;">
                     Title: 
-                    <input type="text" class="form-control" ng-value=game.title ng-model="title"></input>
+                    <input type="text" class="form-control" ng-init="title = game.title" ng-model="title"></input>
                     <br>
                     Link: 
-                    <input type="text" class="form-control" ng-value=game.link ng-model="link"></input>
+                    <input type="text" class="form-control" ng-init="link = game.link" ng-model="link"></input>
                     <br>
                     Description: 
-                    <input type="text" class="form-control" ng-value=game.description ng-model="description"></input>
+                    <input type="text" class="form-control" ng-init="description = game.description" ng-model="description"></input>
                     <br>
                     <button type="submit" class="btn btn-primary">Update Game</button> 
                     </form>
