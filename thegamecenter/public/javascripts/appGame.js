@@ -273,12 +273,10 @@ app.controller('PlayerCtrl', [
             $scope.realName = '';
             $scope.age = '';
         };
-
         $scope.deletePlayer = function(player){
             players.delete(player._id);
             $scope.players = players.players;
         }
-
         $scope.isAuthorized = function(player){
             return player.author === auth.currentUser();
         };
